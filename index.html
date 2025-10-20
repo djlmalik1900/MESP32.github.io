@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 Control</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 60px; }
+    button {
+      font-size: 20px; margin: 10px; padding: 15px 30px;
+      border-radius: 10px; border: none; cursor: pointer;
+      background: #008CBA; color: white;
+    }
+    button.off { background: #555; }
+  </style>
+</head>
+<body>
+  <h1>🌐 ESP32 WiFi Dashboard</h1>
+  <button onclick="sendCommand('ON')">Turn ON</button>
+  <button class="off" onclick="sendCommand('OFF')">Turn OFF</button>
+
+  <script>
+    const username = "YOUR_ADAFRUIT_USERNAME";
+    const aioKey = "YOUR_AIO_KEY";
+    const feed = "relay45"; // same feed name from Adafruit IO
+
+    function sendCommand(state) {
+      fetch(`https://io.adafruit.com/api/v2/${username}/feeds/${feed}/data`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-AIO-Key": aioKey
+        },
+        body: JSON.stringify({ value: state })
+      }).then(() => alert(`Relay turned ${state}`));
+    }
+  </script>
+</body>
+</html>
+
