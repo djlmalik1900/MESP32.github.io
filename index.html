@@ -1,40 +1,207 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ESP32 Control</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 60px; }
-    button {
-      font-size: 20px; margin: 10px; padding: 15px 30px;
-      border-radius: 10px; border: none; cursor: pointer;
-      background: #008CBA; color: white;
-    }
-    button.off { background: #555; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0080ff">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        header{
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            font-size: 1.3rem;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: rgba(red, green, blue, 0.5);
+        }
+        .connection-status{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        .status-dot{
+            width: 12px;
+            height: 12px;
+            background: red;
+            border-radius: 50%;
+        }
+        .status-dot.connected{
+            background: greenyellow;
+        }
+        body{
+            background: rgb(26, 26, 66);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0;
+        }
+        .dashboard{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+            gap: 25px;
+        }
+        .card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title{
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .controls{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .controls-btn{
+            display: grid;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.2rem;
+        }
+        .controls-btn:hover{
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .controls-btn i{
+            font-size: 2rem;
+        }
+        .indicator{
+
+        }
+        .temp-guge{
+
+        }
+        .gauge-container{
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(2,1rf);
+            position: relative;
+            height: 100px;
+            background:rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        .gauge-panel{
+            position: relative;
+            width: 180px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.3);
+            top: 20%;
+            border-radius: 10px;
+        }
+        .gauge-levl{
+            width: 70%;
+            height: 30px;
+            border-radius: 10px;
+            background: rgb(245, 62, 7);
+        }
+        .hum-level{
+            width: 70%;
+            height: 30px;
+            border-radius: 10px;
+            background: rgb(0, 171, 250);
+        }
+        .temp-value{
+            color: white
+        }
+
+    </style>
 </head>
 <body>
-  <h1>🌐 ESP32 WiFi Dashboard</h1>
-  <button onclick="sendCommand('ON')">Turn ON</button>
-  <button class="off" onclick="sendCommand('OFF')">Turn OFF</button>
-
-  <script>
-    const username = "YOUR_ADAFRUIT_USERNAME";
-    const aioKey = "YOUR_AIO_KEY";
-    const feed = "relay45"; // same feed name from Adafruit IO
-
-    function sendCommand(state) {
-      fetch(`https://io.adafruit.com/api/v2/${username}/feeds/${feed}/data`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-AIO-Key": aioKey
-        },
-        body: JSON.stringify({ value: state })
-      }).then(() => alert(`Relay turned ${state}`));
-    }
-  </script>
+    <div class="container">
+        <header>
+            <h1> <i class="fas fa-home"></i> HOME Dashboard</h1>
+            <p> Use all device proffesionally</p>
+            <div class="connection-status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText"> Disconnected</span>
+            </div>
+        </header>
+        <div class="dashboard">
+            <div class="card">
+                <h2 class="card-title"> Lights Control</h2>
+                <div class="controls">
+                    <button class="controls-btn" id="light-room1" onclick="toggleControl('lightroom1')">
+                        <i class="fas fa-lightbulb"></i>
+                    <span> Light Room 1</span>
+                    </button>
+                    <button class="controls-btn" id="light-room2" onclick="toggleControl('lightroom2')"> 
+                        <i class="fas fa-lightbulb"></i> 
+                        <span> Light Room 2</span>
+                    </button>
+                    <button class="controls-btn"> <i class="fas fa-lightbulb"></i> light3</button>
+                    <button class="controls-btn"><i class="fas fa-lightbulb"></i> light4</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="card-title">Romm 1</h2>
+                <div class="controls">
+                    <button class="controls-btn"> <i class="fas fa-fan"></i> 
+                        Air Extractor
+                    </button>
+                    <button class="controls-btn">Light</button>
+                    <button class="controls-btn">curtaint</button>
+                    <div class="gauge-container">
+                        <div class="gauge-panel">
+                            <div class="gauge-levl"></div>
+                        </div>
+                        <div class="temp-value">
+                            <h2> <i class="fas fa-thermometer-half"></i> Temp : 25 C </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="controls">
+                    <div class="gauge-container">
+                        <div class="gauge-panel">
+                            <div class="hum-level"></div>
+                            <h2> <i></i> Hum : 65 %</h2>
+                        </div>
+                    </div>
+                    <div class="gauge-container"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard">
+            <div class="card">
+                <h2 class="card-title"> Living Room</h2>
+                <button class="controls-btn"><i class="fas fa-lightbulb"> </i></button>
+                <button class="controls-btn"><i class="fas fa-lightbulb"></i></button>
+                <button class="controls-btn"></button>
+                <button class="controls-btn"></button>
+                <div class="gauge-container">
+                    <div class="gauge-panel">
+                        <div class="gauge-levl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="HomeScript.js"></script>
 </body>
 </html>
-
